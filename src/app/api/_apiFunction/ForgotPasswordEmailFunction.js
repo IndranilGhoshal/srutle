@@ -1,0 +1,28 @@
+
+import { Resend } from 'resend';
+import EmailForgotPasswordTemplate from '../_emailTemplate/EmailForgotPasswordTemplate';
+import { BASE_URL, RESEND_API_KEY } from '@/app/lib/config';
+
+const resend = new Resend(RESEND_API_KEY);
+
+const ForgotPasswordEmailFunction = async(props) => {
+  let TEN_MINUTES = new Date().getTime() + 600000;
+    try {
+        const { data, error } = await resend.emails.send({
+          from: props.from,
+          to: [props.to],
+          subject: 'Forgot password link',
+          react: EmailForgotPasswordTemplate({ Link: BASE_URL+props.link+props.id+"?t="+TEN_MINUTES, authEmail:props.from, name:props.name }),
+        });
+    
+        if (error) {
+          return ({ error ,status: 500 ,success:false });
+        }
+    
+        return ({data,success:true});
+      } catch (error) {
+        return ({ error ,status: 500 ,success:false });
+      }
+}
+
+export default ForgotPasswordEmailFunction
